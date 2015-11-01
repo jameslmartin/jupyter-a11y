@@ -1,0 +1,58 @@
+body {
+	font-family: "Lora","Helvetica Neue",Helvetica,Arial,sans-serif;
+	color: #001F3F;
+}
+
+h1,h2,h3,h4,h5,h6 {
+    font-weight: normal;
+    font-family: "Montserrat", sans-serif;
+	color: inherit;
+}
+
+a {
+    color: #3D9970;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #3D9970;
+}
+
+a:hover {
+    color: #3D9970;
+}
+
+a:active {
+    color: red;
+}
+
+.post-date {
+	color: #3D9970;
+	font-size: 95%;
+	padding-bottom: 5px;
+}
+
+.subtitle {
+	font-family: "Montserrat";
+	color: inherit;
+	font-size: 110%;
+}
+
+#siteTitle .title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+#siteTitle nav {
+	margin-top: 0.75em;
+}
+
+#siteTitle nav a {
+	color: inherit;
+	margin-right: 1.75em;
+}
+
+#copyright {
+	padding-bottom: 50px;
+	text-align: center;
+}
