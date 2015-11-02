@@ -1,0 +1,57 @@
+.text_cell .prompt {
+    display: none;
+}
+
+.text_cell .inner_cell {
+    margin-left: 0;
+}
+
+.prompt {
+    font-size: 0.8em;
+    padding-top: 8px;
+    float: left;
+}
+
+.input_prompt {
+    color: #000080;
+}
+
+.output_prompt {
+    color: #8b0000;
+}
+
+.inner_cell {
+    margin-left: 3em;
+}
+
+.input_area pre {
+    background-color: #fafafa;
+}
+
+.output_subarea {
+    margin-left: 3em;
+}
+
+.output_subarea pre {
+    border-width: 0;
+    background-color: transparent;
+
+}
+
+.output_subarea th,
+.output_subarea td,
+.output_subarea table {
+    padding: 4px;
+}
+
+.output_subarea th {
+    font-weight: bold;
+}
+
+.output_subarea img {
+    max-width: 100%;
+}
+
+.output_html .dataframe {
+    font-family: monospace;
+}
