@@ -1,0 +1,13 @@
+{
+    "name": "mini-web-server",
+    "description": "App for serving web pages",
+    "version": "0.0.1",
+    "private": true,
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/jameslmartin/jupyter-a11y.git"
+    },
+    "dependencies": {
+        "express": "*"
+    }
+}
