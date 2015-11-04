@@ -75,6 +75,70 @@
                             </div>
                         </div>
                     </div>
+
+                    <hr>
+
+                    <div class="cell border-box-sizing text_cell rendered">
+                        <div class="prompt input_prompt">
+                        </div>
+                        <div class="inner_cell">
+                            <div class="text_cell_render border-box-sizing rendered_html">
+                                <h3 id="Creating-a-new-notebook-extension">Creating a new notebook extension</h3>
+                                <p>Creating a new notebook extension (nbextension) is easy. Jupyter nbextensions are written and installed using JavaScript. From my explorations, I've found that nbextensions consist of an outer function that is loaded upon a notebook being booted. There are a few different ways to write nbextensions, but I've observed the following structure:</p>
+                                <div class="highlight"><pre><span class="nx">define</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+    <span class="s2">&quot;use strict&quot;</span>
+    <span class="kd">var</span> <span class="nx">Jupyter</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;base/js/namespace&#39;</span><span class="p">);</span>
+    <span class="p">...</span>
+    <span class="kd">var</span> <span class="nx">load_extension</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+        <span class="p">...</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="p">{</span> <span class="nx">load_ipython_extension</span><span class="o">:</span> <span class="nx">load_extension</span> <span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cell border-box-sizing text_cell rendered">
+                        <div class="prompt input_prompt">
+                        </div>
+                        <div class="inner_cell">
+                            <div class="text_cell_render border-box-sizing rendered_html">
+                                <h3 id="Keyboard-bindings-and-loading-the-extension">Keyboard bindings and loading the extension</h3>
+                                <p>Digging a little further, the <code>load_ipython_extension</code> function is very important. For example, this is the current iteration for <code>reader</code>:</p>
+                                <div class="highlight"><pre><span class="kd">var</span> <span class="nx">load_extension</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+    <span class="kd">var</span> <span class="nx">_read</span> <span class="o">=</span> <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">actions</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">read</span><span class="p">,</span> <span class="s1">&#39;read highlighted cell&#39;</span><span class="p">,</span> <span class="s1">&#39;accessibility&#39;</span><span class="p">)</span>
+    <span class="kd">var</span> <span class="nx">_kill</span> <span class="o">=</span> <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">actions</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">kill</span><span class="p">,</span> <span class="s1">&#39;cancel reading of cell&#39;</span><span class="p">,</span> <span class="s1">&#39;accessibility&#39;</span><span class="p">)</span>
+    <span class="kd">var</span> <span class="nx">_mode</span> <span class="o">=</span> <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">actions</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">get_mode</span><span class="p">,</span> <span class="s1">&#39;read the mode of current cell&#39;</span><span class="p">,</span> <span class="s1">&#39;accessibility&#39;</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Reader Loaded&quot;</span><span class="p">)</span>
+    <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">command_shortcuts</span><span class="p">.</span><span class="nx">add_shortcut</span><span class="p">(</span><span class="s1">&#39;Shift-R&#39;</span><span class="p">,</span> <span class="nx">_read</span><span class="p">)</span>
+    <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">command_shortcuts</span><span class="p">.</span><span class="nx">add_shortcut</span><span class="p">(</span><span class="s1">&#39;Shift-ESC&#39;</span><span class="p">,</span> <span class="nx">_kill</span><span class="p">)</span>
+    <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">command_shortcuts</span><span class="p">.</span><span class="nx">add_shortcut</span><span class="p">(</span><span class="s1">&#39;CTRL-M&#39;</span><span class="p">,</span> <span class="nx">_mode</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cell border-box-sizing text_cell rendered">
+                        <div class="prompt input_prompt">
+                        </div>
+                        <div class="inner_cell">
+                            <div class="text_cell_render border-box-sizing rendered_html">
+                                <p>Note that we are registering several functions (<code>read</code>, <code>kill</code>, and <code>get_mode</code>) to the Jupyter keyboard manager as <em>actions</em>, then associating shortcuts.</p>
+                                <p>From my observations, this <code>load_extension</code> function is called for every extension you have installed for that notebook.</p>
+                                <p>To double check these shortcuts are registered, click <code>Help</code> then <code>Keyboard Shortcuts</code>. The messages passed as the second argument to the <code>register</code> function are <strong>not</strong> the ones displayed in the <code>Keyboard Shortcuts</code> window. Let's take a look at the <code>kill</code> function specifically to see where these messages are specified.</p>
+                                <div class="highlight"><pre><span class="kd">var</span> <span class="nx">kill</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">help</span><span class="o">:</span> <span class="s1">&#39;cancel reading of cell&#39;</span><span class="p">,</span>
+    <span class="nx">handler</span> <span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nb">window</span><span class="p">.</span><span class="nx">speechSynthesis</span><span class="p">.</span><span class="nx">cancel</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+                                <p>We see the help messages are specified as a property of the kill action.</p>
+                                <p>Each action is an object with at least a help message and a handler, which is a function. In the case of <code>kill</code>, it simply cancels all speech messages in the queue. Note that the handler function need not take any arguments.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
