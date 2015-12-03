@@ -64,7 +64,7 @@ define(function() {
     var earcon_setup = function(events) {
 
         var sound = new Howl({
-            urls: ['transformer-1.mp3'], // Not sure how to specify this URL, running into this scoping issue again
+            urls: ['transformer-1.mp3'],
             loop: true,
             onend: function() {
                 console.log('Finished!');

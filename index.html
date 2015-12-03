@@ -8,10 +8,13 @@
     <meta name="author" content="James Martin">
     <title>Jupyter a11y</title>
     <!--fonts-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
     <link href='css/site.css' rel='stylesheet' type='text/css'>
     <link href='css/notebook.css' rel='stylesheet' type='text/css'>
     <link href='css/extra.css' rel='stylesheet' type='text/css'>
@@ -27,119 +30,199 @@
                 <a href=".">Home</a>
                 <a href="./about/">About</a>
             </nav>
+            <br> Click a title to expand or collapse a post.
             <hr>
         </header>
-        <div class="row">
-            <div class="col-md-12">
-                <div tabindex="-1" id="notebook" class="border-box-sizing">
-                    <div class="cell border-box-sizing text_cell rendered">
-                        <div class="prompt input_prompt">
-                        </div>
-                        <div class="inner_cell">
-                            <div class="text_cell_render border-box-sizing rendered_html">
-                                <h3 id="Installing-the-Extension">Installing the Extension</h3>
-                                <p>Getting started with <code>reader</code> is pretty simple. Run the following cells of code in any notebook to download and install the extension.</p>
-                                <div class="highlight"><pre><span class="kn">import</span> <span class="nn">notebook.nbextensions</span>
-<span class="n">reader_js</span> <span class="o">=</span> <span class="s">&#39;https://gist.githubusercontent.com/jameslmartin/b52f4778782fa4a61dbd/raw/c749190cc3471207af6726ab10b9dd6ba4bf239f/reader.js&#39;</span>
-<span class="n">notebook</span><span class="o">.</span><span class="n">nbextensions</span><span class="o">.</span><span class="n">install_nbextension</span><span class="p">(</span><span class="n">reader_js</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</pre></div>
-                                <p>After the file is downloaded, load the extension by running this block of code with the JavaScript magic:</p>
-                                <div class="highlight"><pre><span class="o">%%</span><span class="n">javascript</span>
-<span class="n">Jupyter</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">load_extensions</span><span class="p">(</span><span class="s">&#39;reader&#39;</span><span class="p">)</span>
-</pre></div>
-                            </div>
-                        </div>
+    </div>
+    <div class="container" id="notebook-container">
+        <h3 data-target="#Installation" data-toggle="collapse" class="post-title">Installing the Extension</h3> Learn how to install the a11y reader nbextension
+        <br>
+        <br>
+        <div id="Installation" class="collapse">
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p>Getting started with <code>reader</code> is pretty simple. Run the following cells of code in any notebook to download and install the extension.</p>
+                        <div class="highlight"><pre><span class="kn">import</span> <span class="nn">notebook.nbextensions</span>
+                <span class="n">reader_js</span> <span class="o">=</span> <span class="s">&#39;https://gist.githubusercontent.com/jameslmartin/b52f4778782fa4a61dbd/raw/c749190cc3471207af6726ab10b9dd6ba4bf239f/reader.js&#39;</span>
+                <span class="n">notebook</span><span class="o">.</span><span class="n">nbextensions</span><span class="o">.</span><span class="n">install_nbextension</span><span class="p">(</span><span class="n">reader_js</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                </pre></div>
+                        <p>After the file is downloaded, load the extension by running this block of code with the JavaScript magic:</p>
+                        <div class="highlight"><pre><span class="o">%%</span><span class="n">javascript</span>
+                <span class="n">Jupyter</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">load_extensions</span><span class="p">(</span><span class="s">&#39;reader&#39;</span><span class="p">)</span>
+                </pre></div>
                     </div>
-                    <div class="cell border-box-sizing text_cell rendered">
-                        <div class="prompt input_prompt">
-                        </div>
-                        <div class="inner_cell">
-                            <div class="text_cell_render border-box-sizing rendered_html">
-                                <h3 id="Keyboard-shortcuts">Keyboard shortcuts</h3>
-                                <p>Click <code>Help &gt; Keyboard Shortcuts</code> to see your available list of shortcuts. Currently, we support three functions:</p>
-                                <ul>
-                                    <li><code>CTRL-M</code> to read if the mode is currently 'Command' (useful for navigation) </li>
-                                    <li><code>Shift-R</code> to read the highlighted cell </li>
-                                    <li><code>Shift-ESC</code> to cancel reading of the cell (useful for code with links) </li>
-                                </ul>
-                                <p>If you have any ideas for how to expand and build on the functionality of the reader, get in touch by leaving a comment on the current <a href="https://gist.github.com/jameslmartin/b52f4778782fa4a61dbd">gist page</a>.</p>
-                                <h3 id="Persisting-across-notebooks">Persisting across notebooks</h3>
-                                <p>To persist the <code>reader</code> extension, run the following code to modify your Jupyter configuration profile:</p>
-                                <div class="highlight"><pre><span class="kn">from</span> <span class="nn">notebook.services.config</span> <span class="kn">import</span> <span class="n">ConfigManager</span>
-<span class="n">ip</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span>
-<span class="n">cm</span> <span class="o">=</span> <span class="n">ConfigManager</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">ip</span><span class="p">,</span> <span class="n">profile_dir</span><span class="o">=</span><span class="n">ip</span><span class="o">.</span><span class="n">profile_dir</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
-<span class="n">cm</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s">&#39;notebook&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;load_extensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;reader&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}})</span>
-</pre></div>
-                                <p>To learn more, check out <a href="http://mindtrove.info/#nb-extensions">Pete Parente's</a> post about extending Jupyter notebooks. Pete also walks through an example of writing your own nbextension.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="cell border-box-sizing text_cell rendered">
-                        <div class="prompt input_prompt">
-                        </div>
-                        <div class="inner_cell">
-                            <div class="text_cell_render border-box-sizing rendered_html">
-                                <h3 id="Creating-a-new-notebook-extension">Creating a new notebook extension</h3>
-                                <p>Creating a new notebook extension (nbextension) is easy. Jupyter nbextensions are written and installed using JavaScript. From my explorations, I've found that nbextensions consist of an outer function that is loaded upon a notebook being booted. There are a few different ways to write nbextensions, but I've observed the following structure:</p>
-                                <div class="highlight"><pre><span class="nx">define</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
-    <span class="s2">&quot;use strict&quot;</span>
-    <span class="kd">var</span> <span class="nx">Jupyter</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;base/js/namespace&#39;</span><span class="p">);</span>
-    <span class="p">...</span>
-    <span class="kd">var</span> <span class="nx">load_extension</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
-        <span class="p">...</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span> <span class="p">{</span> <span class="nx">load_ipython_extension</span><span class="o">:</span> <span class="nx">load_extension</span> <span class="p">}</span>
-<span class="p">})</span>
-</pre></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cell border-box-sizing text_cell rendered">
-                        <div class="prompt input_prompt">
-                        </div>
-                        <div class="inner_cell">
-                            <div class="text_cell_render border-box-sizing rendered_html">
-                                <h3 id="Keyboard-bindings-and-loading-the-extension">Keyboard bindings and loading the extension</h3>
-                                <p>Digging a little further, the <code>load_ipython_extension</code> function is very important. For example, this is the current iteration for <code>reader</code>:</p>
-                                <div class="highlight"><pre><span class="kd">var</span> <span class="nx">load_extension</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
-    <span class="kd">var</span> <span class="nx">_read</span> <span class="o">=</span> <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">actions</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">read</span><span class="p">,</span> <span class="s1">&#39;read highlighted cell&#39;</span><span class="p">,</span> <span class="s1">&#39;accessibility&#39;</span><span class="p">)</span>
-    <span class="kd">var</span> <span class="nx">_kill</span> <span class="o">=</span> <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">actions</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">kill</span><span class="p">,</span> <span class="s1">&#39;cancel reading of cell&#39;</span><span class="p">,</span> <span class="s1">&#39;accessibility&#39;</span><span class="p">)</span>
-    <span class="kd">var</span> <span class="nx">_mode</span> <span class="o">=</span> <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">actions</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">get_mode</span><span class="p">,</span> <span class="s1">&#39;read the mode of current cell&#39;</span><span class="p">,</span> <span class="s1">&#39;accessibility&#39;</span><span class="p">)</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Reader Loaded&quot;</span><span class="p">)</span>
-    <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">command_shortcuts</span><span class="p">.</span><span class="nx">add_shortcut</span><span class="p">(</span><span class="s1">&#39;Shift-R&#39;</span><span class="p">,</span> <span class="nx">_read</span><span class="p">)</span>
-    <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">command_shortcuts</span><span class="p">.</span><span class="nx">add_shortcut</span><span class="p">(</span><span class="s1">&#39;Shift-ESC&#39;</span><span class="p">,</span> <span class="nx">_kill</span><span class="p">)</span>
-    <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">command_shortcuts</span><span class="p">.</span><span class="nx">add_shortcut</span><span class="p">(</span><span class="s1">&#39;CTRL-M&#39;</span><span class="p">,</span> <span class="nx">_mode</span><span class="p">)</span>
-<span class="p">}</span>
-</pre></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cell border-box-sizing text_cell rendered">
-                        <div class="prompt input_prompt">
-                        </div>
-                        <div class="inner_cell">
-                            <div class="text_cell_render border-box-sizing rendered_html">
-                                <p>Note that we are registering several functions (<code>read</code>, <code>kill</code>, and <code>get_mode</code>) to the Jupyter keyboard manager as <em>actions</em>, then associating shortcuts.</p>
-                                <p>From my observations, this <code>load_extension</code> function is called for every extension you have installed for that notebook.</p>
-                                <p>To double check these shortcuts are registered, click <code>Help</code> then <code>Keyboard Shortcuts</code>. The messages passed as the second argument to the <code>register</code> function are <strong>not</strong> the ones displayed in the <code>Keyboard Shortcuts</code> window. Let's take a look at the <code>kill</code> function specifically to see where these messages are specified.</p>
-                                <div class="highlight"><pre><span class="kd">var</span> <span class="nx">kill</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="nx">help</span><span class="o">:</span> <span class="s1">&#39;cancel reading of cell&#39;</span><span class="p">,</span>
-    <span class="nx">handler</span> <span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-        <span class="nb">window</span><span class="p">.</span><span class="nx">speechSynthesis</span><span class="p">.</span><span class="nx">cancel</span><span class="p">();</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-                                <p>We see the help messages are specified as a property of the kill action.</p>
-                                <p>Each action is an object with at least a help message and a handler, which is a function. In the case of <code>kill</code>, it simply cancels all speech messages in the queue. Note that the handler function need not take any arguments.</p>
-                            </div>
-                        </div>
+                </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <h4 id="Keyboard-shortcuts">Keyboard shortcuts</h3>
+                        <p>Click <code>Help &gt; Keyboard Shortcuts</code> to see your available list of shortcuts. Currently, we support three functions:</p>
+                        <ul>
+                            <li><code>CTRL-M</code> to read if the mode is currently 'Command' (useful for navigation) </li>
+                            <li><code>Shift-R</code> to read the highlighted cell </li>
+                            <li><code>Shift-ESC</code> to cancel reading of the cell (useful for code with links) </li>
+                        </ul>
+                        <p>If you have any ideas for how to expand and build on the functionality of the reader, get in touch by leaving a comment on the current <a href="https://gist.github.com/jameslmartin/b52f4778782fa4a61dbd">gist page</a>.</p>
+                        <h4 id="Persisting-across-notebooks">Persisting across notebooks</h3>
+                        <p>To persist the <code>reader</code> extension, run the following code to modify your Jupyter configuration profile:</p>
+                        <div class="highlight"><pre><span class="kn">from</span> <span class="nn">notebook.services.config</span> <span class="kn">import</span> <span class="n">ConfigManager</span>
+                <span class="n">ip</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span>
+                <span class="n">cm</span> <span class="o">=</span> <span class="n">ConfigManager</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">ip</span><span class="p">,</span> <span class="n">profile_dir</span><span class="o">=</span><span class="n">ip</span><span class="o">.</span><span class="n">profile_dir</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
+                <span class="n">cm</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s">&#39;notebook&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;load_extensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;reader&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}})</span>
+                </pre></div>
+                        <p>To learn more, check out <a href="http://mindtrove.info/#nb-extensions">Pete Parente's</a> post about extending Jupyter notebooks. Pete also walks through an example of writing your own nbextension.</p>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Footer Section -->
+        <!--
+        =========================== End of Installation ===========================
+        -->
+        <h3 data-target="#Creating" data-toggle="collapse" class="post-title">Creating a new notebook extension</h3>
+        Get a breif overview of how to create a new nbextension <br> <br>
+        <div id="Creating" class="collapse">
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p>Creating a new notebook extension (nbextension) is easy. Jupyter nbextensions are written and installed using JavaScript. From my explorations, I've found that nbextensions consist of an outer function that is loaded upon a notebook being booted. There are a few different ways to write nbextensions, but I've observed the following structure:</p>
+                        <div class="highlight"><pre><span class="nx">define</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+            <span class="s2">&quot;use strict&quot;</span>
+            <span class="kd">var</span> <span class="nx">Jupyter</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;base/js/namespace&#39;</span><span class="p">);</span>
+            <span class="p">...</span>
+            <span class="kd">var</span> <span class="nx">load_extension</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+                <span class="p">...</span>
+            <span class="p">}</span>
+
+            <span class="k">return</span> <span class="p">{</span> <span class="nx">load_ipython_extension</span><span class="o">:</span> <span class="nx">load_extension</span> <span class="p">}</span>
+        <span class="p">})</span>
+        </pre></div>
+                    </div>
+                </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="prompt input_prompt">
+                </div>
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <h4 id="Keyboard-bindings-and-loading-the-extension">Keyboard bindings and loading the extension</h3>
+                        <p>Digging a little further, the <code>load_ipython_extension</code> function is very important. For example, this is the current iteration for <code>reader</code>:</p>
+                        <div class="highlight"><pre><span class="kd">var</span> <span class="nx">load_extension</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+            <span class="kd">var</span> <span class="nx">_read</span> <span class="o">=</span> <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">actions</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">read</span><span class="p">,</span> <span class="s1">&#39;read highlighted cell&#39;</span><span class="p">,</span> <span class="s1">&#39;accessibility&#39;</span><span class="p">)</span>
+            <span class="kd">var</span> <span class="nx">_kill</span> <span class="o">=</span> <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">actions</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">kill</span><span class="p">,</span> <span class="s1">&#39;cancel reading of cell&#39;</span><span class="p">,</span> <span class="s1">&#39;accessibility&#39;</span><span class="p">)</span>
+            <span class="kd">var</span> <span class="nx">_mode</span> <span class="o">=</span> <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">actions</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">get_mode</span><span class="p">,</span> <span class="s1">&#39;read the mode of current cell&#39;</span><span class="p">,</span> <span class="s1">&#39;accessibility&#39;</span><span class="p">)</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Reader Loaded&quot;</span><span class="p">)</span>
+            <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">command_shortcuts</span><span class="p">.</span><span class="nx">add_shortcut</span><span class="p">(</span><span class="s1">&#39;Shift-R&#39;</span><span class="p">,</span> <span class="nx">_read</span><span class="p">)</span>
+            <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">command_shortcuts</span><span class="p">.</span><span class="nx">add_shortcut</span><span class="p">(</span><span class="s1">&#39;Shift-ESC&#39;</span><span class="p">,</span> <span class="nx">_kill</span><span class="p">)</span>
+            <span class="nx">Jupyter</span><span class="p">.</span><span class="nx">keyboard_manager</span><span class="p">.</span><span class="nx">command_shortcuts</span><span class="p">.</span><span class="nx">add_shortcut</span><span class="p">(</span><span class="s1">&#39;CTRL-M&#39;</span><span class="p">,</span> <span class="nx">_mode</span><span class="p">)</span>
+        <span class="p">}</span>
+        </pre></div>
+                    </div>
+                </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="prompt input_prompt">
+                </div>
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p>Note that we are registering several functions (<code>read</code>, <code>kill</code>, and <code>get_mode</code>) to the Jupyter keyboard manager as <em>actions</em>, then associating shortcuts.</p>
+                        <p>From my observations, this <code>load_extension</code> function is called for every extension you have installed for that notebook.</p>
+                        <p>To double check these shortcuts are registered, click <code>Help</code> then <code>Keyboard Shortcuts</code>. The messages passed as the second argument to the <code>register</code> function are <strong>not</strong> the ones displayed in the <code>Keyboard Shortcuts</code> window. Let's take a look at the <code>kill</code> function specifically to see where these messages are specified.</p>
+                        <div class="highlight"><pre><span class="kd">var</span> <span class="nx">kill</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nx">help</span><span class="o">:</span> <span class="s1">&#39;cancel reading of cell&#39;</span><span class="p">,</span>
+            <span class="nx">handler</span> <span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+                <span class="nb">window</span><span class="p">.</span><span class="nx">speechSynthesis</span><span class="p">.</span><span class="nx">cancel</span><span class="p">();</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        </pre></div>
+                        <p>We see the help messages are specified as a property of the kill action.</p>
+                        <p>Each action is an object with at least a help message and a handler, which is a function. In the case of <code>kill</code>, it simply cancels all speech messages in the queue. Note that the handler function need not take any arguments.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--
+        =========================== End of Installation ===========================
+        -->
+        <h3 data-target="#Binding" data-toggle="collapse" class="post-title">Binding kernel events</h3>
+        Get a breif overview of how to bind Jupyter kernel events to JavaScript functions <br> <br>
+        <div id="Binding" class="collapse">
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p>We can also bind JavaScript functions to kernel events. This gives us tremendous flexibility to wrap kernel events by "hooking" into the communication between the notebook UI and the kernel. This allows us to take an approach similar to <a href="https://github.com/tvraman/emacspeak">emacspeak</a>.</p>
+                        <p>For example, we can play earcons as the kernel transitions from busy to idle. Similar to the gray circle in the top right of the notebook interface or the [*] seen next to the running cell, this earcon gives users an idea of the state of the kernel.</p>
+                        <p>The following code cell is an example of how to tap into Jupyter's events data structure.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered_html">
+                    <div class="inner_cell">
+                            <div class="highlight"><pre><span class="o">%%</span><span class="nx">javascript</span>
+
+<span class="kd">var</span> <span class="nx">events</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;base/js/events&#39;</span><span class="p">);</span> <span class="c1">//Use require.js to get list of events</span>
+
+<span class="c1">//...</span>
+
+<span class="cm">/*</span>
+<span class="cm"> * earcon_setup(): loads a sound to be played while code is executing by the kernel. Provides knowledge of</span>
+<span class="cm"> *                 kernel state.</span>
+<span class="cm"> */</span>
+<span class="kd">var</span> <span class="nx">earcon_setup</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">events</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">play</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Play&quot;</span><span class="p">)</span>
+    <span class="p">};</span>
+    <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Stop&quot;</span><span class="p">)</span>
+    <span class="p">};</span>
+    
+    <span class="nx">events</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;kernel_idle.Kernel&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">stop</span><span class="p">();</span> <span class="c1">// Bind the stop() function to when the idle event fires</span>
+    <span class="p">})</span>
+
+    <span class="nx">events</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;kernel_busy.Kernel&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">play</span><span class="p">();</span> <span class="c1">// Bind the play() function to when the busy event fires</span>
+    <span class="p">})</span>
+<span class="p">}</span>
+</pre></div>
+                </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="prompt input_prompt">
+                </div>
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p>In the developer's console in Chrome, we can see when these events are fired. The kernel transitions between the idle/busy states on startup, so this is a fairly naive binding.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p><img src="./screenshot_1.png" style="height:100px;width:auto;"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p>The above screenshot was generated by running a code cell twice. Looking in the code for my test file (<code>reader_test.js</code>) for the <code>reader</code> nbextension, we see the code:</p>
+                        <p><img src="./screenshot_2.png" style="height:400px;width:auto;"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p>Note that this <code>earcon_setup</code> function is called in the <code>load_extension</code> function discussed in a previous post. This function makes use of closures in JavaScript. The functions <code>play()</code> and <code>stop()</code> store the Howl and allow the sound to be played when the kernel events fire.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer Section -->
+    <div class="container">
         <hr>
         <div class="row" id="footer-section">
             <div class="col-md-4" id="contact">
@@ -152,6 +235,15 @@
                     <br/>
                 </div>
             </div>
+            <!--
+            <div class="col-md-4">
+                <h3>Posts</h3> 
+                Installing the extension <br>
+                Creating a new notebook extension <br>
+                Binding kernel events <br>
+                Expanding Web Speech API queue <br>
+            </div>
+            --> 
         </div>
     </div>
 </body>

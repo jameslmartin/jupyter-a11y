@@ -32,6 +32,10 @@ a:active {
 	padding-bottom: 5px;
 }
 
+.post-title:hover {
+	text-decoration: underline;
+}
+
 .subtitle {
 	font-family: "Lato";
 	color: inherit;
