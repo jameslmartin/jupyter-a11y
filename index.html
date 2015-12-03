@@ -220,6 +220,74 @@
                 </div>
             </div>
         </div>
+        <!--
+        =========================== End of kernel events ===========================
+        -->
+        <h3 data-target="#Libraries" data-toggle="collapse" class="post-title">Loading external JavaScript libraries for use in nbextensions</h3>
+        Learn how to include other JavaScript libraries in your nbextension using jQuery<br> <br>
+        <div id="Libraries" class="collapse">        
+        <div class="cell border-box-sizing text_cell rendered">
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p>One of the great features of JavaScript programming on the web is the ability to embed other libraries as scripts in your website. Libraries like jQuery, Bootstrap, and D3.js are three examples and add tons of flexibility to websites. Since notebook extensions are not yet maintained with a package manager like <a href="https://www.npmjs.com/">npm</a>, the easiest way to include JavaScript libraries is through <a href="https://jquery.com/">jQuery</a>. Jupyter's front end already makes use of jQuery, so we can use the jQuery <code>$.getScript()</code> function to download whatever we need.</p>
+                        <p><code>reader</code> uses <a href="http://goldfirestudios.com/blog/104/howler.js-Modern-Web-Audio-Javascript-Library">howler.js</a> to create and trigger sounds when kernel events are fired. The code for grabbing the <code>howler.js</code> library is below:</p>
+                    </div>
+                </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered">
+                    <div class="inner_cell">
+                        <div class="input_area">
+                            <div class=" highlight"><pre><span class="o">%%</span><span class="nx">javascript</span>
+
+<span class="kd">var</span> <span class="nx">howler</span> <span class="o">=</span> <span class="s1">&#39;https://cdnjs.cloudflare.com/ajax/libs/howler/1.1.28/howler.min.js&#39;</span><span class="p">;</span>
+
+<span class="c1">// jQuery Deferreds</span>
+<span class="kd">var</span> <span class="nx">$voices_loaded</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">Deferred</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">$howler</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">Deferred</span><span class="p">();</span>
+
+<span class="nx">$</span><span class="p">.</span><span class="nx">getScript</span><span class="p">(</span><span class="nx">howler</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">done</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">script</span><span class="p">,</span> <span class="nx">textStatus</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Howler loaded&quot;</span><span class="p">);</span>
+        <span class="nx">$howler</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+    <span class="p">})</span>
+    <span class="p">.</span><span class="nx">fail</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">jqxhr</span><span class="p">,</span> <span class="nx">settings</span><span class="p">,</span> <span class="nx">exception</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Howler failed to load&quot;</span><span class="p">);</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">exception</span><span class="p">)</span>
+    <span class="p">});</span>
+</pre></div>
+                        </div>
+                </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p>In addition to the <code>$.getScript()</code> function, we make use of jQuery Deferred objects. These are super useful abstractions that allow us to ensure the libraries load before the rest of the nbextension is loaded. In the <code>load_extension</code> function mentioned in the Installation post, we first wait on the Deferred objects to be resolved.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered">
+                    <div class="inner_cell">
+                        <div class="input_area">
+                            <div class="highlight"><pre><span class="o">%%</span><span class="nx">javascript</span>
+
+<span class="kd">var</span> <span class="nx">load_extension</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">$</span><span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="nx">$howler</span><span class="p">,</span> <span class="nx">$voices_loaded</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">done</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Scripts loaded&quot;</span><span class="p">)</span>
+            <span class="p">...</span>
+    <span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+                        </div>
+                    </div>
+            </div>
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p><code>$voices_loaded</code> is another Deferred object I use to make sure the Web Speech voices load before the rest of the extension is loaded. As you can see, the jQuery <code>$.when()</code> function blocks waiting for all the Deferred objects it is given as arguments. With the combination of <code>$.getScript()</code> and Deferred objects, we can expand notebooke extensions to make use of any JavaScript library.</p>
+                    </div>
+                </div>
+            </div>
     </div>
     <!-- Footer Section -->
     <div class="container">
