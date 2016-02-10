@@ -19,6 +19,7 @@ define(function() {
     var $voices_loaded = $.Deferred();
     var $howler = $.Deferred();
 
+    // Use jQuery to load Howler
     $.getScript(howler)
         .done(function(script, textStatus) {
             console.log("Howler loaded");
@@ -54,7 +55,6 @@ define(function() {
         msg.lang = speech_properties.lang;
         msg.voice = speech_properties.voice;
         msg.rate = speech_properties.rate;
-        //console.log(msg)
     }
 
     /*
@@ -63,47 +63,72 @@ define(function() {
      */
     var earcon_setup = function(events) {
 
-        var sound = new Howl({
-            urls: ['transformer-1.mp3'],
-            loop: true,
-            onend: function() {
-                console.log('Finished!');
-            }
+        var hum = new Howl({
+            urls: ['transformer-1.mp3'], // Not sure how to specify this URL, running into this scoping issue again
+            loop: true
+                // onend: function() {
+                //     console.log('Finished!');
+                // }
         })
 
-        var play = function() {
-            sound.play();
+        var success = new Howl({
+            urls: ['bell-ring-01.mp3'],
+            loop: false
+        })
+
+        var error = new Howl({
+            urls: ['error-alert.mp3'],
+            loop: false
+        })
+
+        var playHum = function() {
+            hum.play();
             console.log("Play");
         };
-        var stop = function() {
-            sound.stop();
+
+        var stopHum = function() {
+            hum.stop();
             console.log("Stop");
         };
 
         events.on("kernel_idle.Kernel", function() {
-            stop();
+            hum.stop();
+            success.play();
         })
 
         events.on("kernel_busy.Kernel", function() {
-            play();
+            hum.play();
         })
-    }
 
-    /*
-     * get_mode(): read whether we are currently in 'Command' mode. If we are not in 'Command' mode, then this does not work...
-     */
-    var get_mode = {
-        help: 'read mode of cell',
-        handler: function(env) {
-            // Get mode from env
-            var m = env.notebook.get_selected_cell().mode;
+        events.on("edit_mode.Notebook", function() {
+            var m = "Edit";
+            var msg = new SpeechSynthesisUtterance(String(m));
 
-            var msg = new speechSynthesisUtterance(String(m))
             applyProperties(msg, speech_properties);
-
             speechSynthesis.speak(msg);
-        }
+        })
+
+        events.on("command_mode.Notebook", function() {
+            var m = "Command";
+            var msg = new SpeechSynthesisUtterance(String(m));
+
+            applyProperties(msg, speech_properties);
+            speechSynthesis.speak(msg);
+        })
+
+        // Might want to play a noise/alert the user when they have changed cells
+        // Would like to indicate whether they have moved up/down
+        
+        // events.on("selected_cell_type_changed.Notebook", function (){
+        //     var m = "Cell changed";
+        //     var msg = new SpeechSynthesisUtterance(String(m));
+
+        //     applyProperties(msg, speech_properties);
+        //     speechSynthesis.speak(msg);
+        // })    
     }
+
+
 
     function prepare(env) {
         var speech_properties = {
@@ -117,30 +142,33 @@ define(function() {
         // Grab selected cell
         var selected_cell = env.notebook.get_selected_cell();
 
-        // Get the type of the current highlighted cell and speak intro line
+        // Get the type of the current highlighted cell for intro line
         var cell_type = selected_cell.cell_type;
-        var type_msg = "This is a " + cell_type + " cell. \n";
+
+        // Grab doc of selected cell through the Code Mirror API
+        var doc = selected_cell.code_mirror.doc;
+        var type_msg = "" + cell_type + " cell with " + doc.size + "";
+        if (doc.size == 1) {
+            var type_msg = type_msg + " line.\n.";
+        } else {
+            var type_msg = type_msg + " lines.\n.";
+        }
         var intro = new SpeechSynthesisUtterance(type_msg);
         applyProperties(intro, speech_properties);
 
         speechSynthesis.speak(intro);
 
-        // Grab doc of selected cell through the Code Mirror API
-        var doc = selected_cell.code_mirror.doc;
 
         // Add each line of the cell to the global message queue
         doc.eachLine(function(line) {
             var l = {
                 text: line.text,
-                styling: line.styles,
+                styles: line.styles,
                 cell_type: cell_type,
                 speech_properties: speech_properties
             }
             line_queue.push(l);
         })
-
-        // console.log("done prepping!");
-        // console.log(line_queue);
     }
 
     /*
@@ -149,8 +177,19 @@ define(function() {
     function readLine() {
         if (line_queue.length > 0) {
             var l = line_queue.shift()
-                //console.log(l);
+            console.log(l.styles);
 
+            if (l.cell_type == 'markdown') {
+                l.text = l.text.replace("#", "")
+            }
+
+            if (l.cell_type == 'code') {
+                // Preface comments
+                if ($.inArray("comment", l.styles) != -1) {
+                    var comment = "Comment: ";
+                    l.text = comment.concat(l.text);
+                }
+            }
             var utterance = new SpeechSynthesisUtterance(l.text);
             applyProperties(utterance, l.speech_properties);
             // After the line is finished speaking, call readLine() recursively to continue reading
@@ -166,8 +205,8 @@ define(function() {
 
     /*
      * read(): read a highlighted cell line by line. Lines of code are created as separate messages to speak and are added
-     *         into the queue sequentially. This allows for the entire reading to be cancelled (with kill) or a line to be
-     *         skipped.
+     *         into the the global message queue sequentially. This allows for the entire reading to be cancelled (with kill) or a line to be
+     *         skipped. prepare() adds lines to the global message queue, readLine() takes them off, parses, and adds to the speechSynthesis queue
      */
     var read = {
         help: 'read highlighted cell',
@@ -206,25 +245,24 @@ define(function() {
         }
     }
 
-    // Speeds up speech rate for future messages sent to the queue
+    // Speeds up speech rate for messages that are in the global message queue
     var speed_up = {
         help: 'speed up reading',
         handler: function() {
-            line_queue.forEach(function(element, index, array) {
-                element.speech_properties.rate += 1;
-            })
+            // So it appears that each element in line_queue share the same speech_properties object
+            line_queue[0].speech_properties.rate += 1
         }
     }
 
+    // Slows down speech rate for messages that are in the global message queue
     var slow_down = {
         help: 'slow down reading',
         handler: function() {
-            line_queue.forEach(function(element, index, array) {
-                // Can only slow down to 1
-                if (element.speech_properties.rate > 2) {
-                    element.speech_properties.rate -= 1;
-                }
-            })
+            element = line_queue[0];
+            // Can only slow down to 1
+            if (element.speech_properties.rate > 2) {
+                element.speech_properties.rate -= 1;
+            }
         }
     }
 
@@ -233,17 +271,18 @@ define(function() {
             .done(function() {
                 console.log("Scripts loaded.")
                 earcon_setup(events);
+                // Load actions
                 var _read = Jupyter.keyboard_manager.actions.register(read, 'read', 'accessibility')
                 var _cancel = Jupyter.keyboard_manager.actions.register(cancel, 'cancel', 'accessibility')
                 var _skip = Jupyter.keyboard_manager.actions.register(skip, 'skip', 'accessibility')
-                var _mode = Jupyter.keyboard_manager.actions.register(get_mode, 'read mode', 'accessibility')
                 var _pause_resume = Jupyter.keyboard_manager.actions.register(pause_resume, 'pause or resume reading', 'accessibility')
                 var _speed_up = Jupyter.keyboard_manager.actions.register(speed_up, 'speed up reading', 'accessibility')
                 var _slow_down = Jupyter.keyboard_manager.actions.register(slow_down, 'slow down reading', 'accessibility')
                 console.log("Reader loaded.")
+                
+                // Bind keyboard shortcuts
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-R', _read)
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-ESC', _cancel)
-                Jupyter.keyboard_manager.command_shortcuts.add_shortcut('CTRL-M', _mode)
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-P', _pause_resume)
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-S', _skip)
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-+', _speed_up)
