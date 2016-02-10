@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 node_modules/
 modules/
 raw_html/
 *.mp3
+=======
+sounds/
+modules/
+node_modules/
+raw_html/
+>>>>>>> 20138b50e734c2d53359b0266cabf63694bd90b7
