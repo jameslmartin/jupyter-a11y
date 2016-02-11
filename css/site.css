@@ -10,16 +10,16 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 a {
-    color: #3D9970;
-    text-decoration: none;
+    color: #FF4136;
+ 	text-decoration: underline;
 }
 
 a:visited {
-    color: #3D9970;
+    color: #85144b;
 }
 
 a:hover {
-    color: #3D9970;
+    color: #0074D9;
 }
 
 a:active {
@@ -27,7 +27,7 @@ a:active {
 }
 
 .post-date {
-	color: #3D9970;
+	color: #0074D9;
 	font-size: 95%;
 	padding-bottom: 5px;
 }
