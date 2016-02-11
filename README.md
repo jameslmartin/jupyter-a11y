@@ -7,7 +7,7 @@ Click to view details of this project on [GitHub Pages](http://jameslmartin.gith
 Include the following code in your notebook to download the extension to your `nbextensions` folder:
 ```python
 import notebook.nbextensions
-reader_js = 'https://gist.githubusercontent.com/jameslmartin/b52f4778782fa4a61dbd/raw/c749190cc3471207af6726ab10b9dd6ba4bf239f/reader.js'
+reader_js = 'https://gist.githubusercontent.com/jameslmartin/b52f4778782fa4a61dbd/raw/437c20c4be8f579f226cb3a97c26f4e1adbe76ce/reader.js'
 notebook.nbextensions.install_nbextension(reader_js, user=True)
 ```
 Then run the following JavaScript cell using magics to load the `reader` extension:
