@@ -1,9 +1,5 @@
 /*
  *  Author: James Martin (jamesml@cs.unc.edu)
- *  TODO: 
- *    - Skip line while reading
- *    - When reading, mute other earcons?
- *    - Speed up / slow down reading
  */
 
 define(function() {
@@ -12,23 +8,16 @@ define(function() {
     var Jupyter = require('base/js/namespace');
     var events = require('base/js/events');
 
-    // CDNs for needed JavaScript libraries
-    var howler = 'https://cdnjs.cloudflare.com/ajax/libs/howler/1.1.28/howler.min.js';
+    // Metadata
+    var cell_ids = [];
+    var selected_cell = 0;
+    var selected_cell_id = 0;
+    var selected_cell_num = 0; // Number of the selected cell down the page
+
+    var mode = "command";
 
     // jQuery Deferreds
     var $voices_loaded = $.Deferred();
-    var $howler = $.Deferred();
-
-    // Use jQuery to load Howler
-    $.getScript(howler)
-        .done(function(script, textStatus) {
-            console.log("Howler loaded");
-            $howler.resolve();
-        })
-        .fail(function(jqxhr, settings, exception) {
-            console.log("Howler failed to load");
-            console.log(exception)
-        });
 
     // Load voices before extension
     var voices;
@@ -42,15 +31,13 @@ define(function() {
     // There is an implementation of a queue in JavaScript which runs in amortized O(1) time
     var line_queue = []
 
-    // Want this to be a global speech_properties object, then expand on it within Read
-    // Edit it when someone wants to speed up / down
+    // Global speech properties
     var speech_properties;
     speech_properties = {
         lang: 'en-us',
         rate: 1
     }
 
-    // JavaScript is pass by reference, so the actual utterance is updated
     var applyProperties = function(msg, speech_properties) {
         msg.lang = speech_properties.lang;
         msg.voice = speech_properties.voice;
@@ -58,79 +45,202 @@ define(function() {
     }
 
     /*
-     * earcon_setup(): loads a sound to be played while code is executing by the kernel. Provides knowledge of
-     *                 kernel state.
+     * earcon_setup(): Prepares and binds functions to kernel and notebook events. Utilizes the WebAudio API to create tones
      */
     var earcon_setup = function(events) {
 
-        var hum = new Howl({
-            urls: ['transformer-1.mp3'], // Not sure how to specify this URL, running into this scoping issue again
-            loop: true
-                // onend: function() {
-                //     console.log('Finished!');
-                // }
-        })
+        var context = new AudioContext();
 
-        var success = new Howl({
-            urls: ['bell-ring-01.mp3'],
-            loop: false
-        })
+        /* VCO */
+        var vco = context.createOscillator();
+        vco.type = vco.SINE;
+        vco.start(0);
 
-        var error = new Howl({
-            urls: ['error-alert.mp3'],
-            loop: false
-        })
+        /* VCA */
+        var vca = context.createGain();
+        vca.gain.value = 0;
+
+        /* Connections */
+        vco.connect(vca);
+        vca.connect(context.destination);
 
         var playHum = function() {
-            hum.play();
-            console.log("Play");
+            vco.frequency.value = 200;
+            vca.gain.value = 0.5;
         };
 
         var stopHum = function() {
-            hum.stop();
-            console.log("Stop");
+            vca.gain.value = 0;
         };
 
         events.on("kernel_idle.Kernel", function() {
-            hum.stop();
-            success.play();
+            stopHum();
         })
 
         events.on("kernel_busy.Kernel", function() {
-            hum.play();
+            playHum();
         })
 
         events.on("edit_mode.Notebook", function() {
             var m = "Edit";
+            mode = "edit"; // Set metadata
             var msg = new SpeechSynthesisUtterance(String(m));
 
-            applyProperties(msg, speech_properties);
+            msg.rate = 3
             speechSynthesis.speak(msg);
         })
 
         events.on("command_mode.Notebook", function() {
             var m = "Command";
+            mode = "command"; // Set metadata
             var msg = new SpeechSynthesisUtterance(String(m));
 
-            applyProperties(msg, speech_properties);
+            msg.rate = 3
             speechSynthesis.speak(msg);
         })
 
-        // Might want to play a noise/alert the user when they have changed cells
-        // Would like to indicate whether they have moved up/down
-        
-        // events.on("selected_cell_type_changed.Notebook", function (){
-        //     var m = "Cell changed";
-        //     var msg = new SpeechSynthesisUtterance(String(m));
+        // This function provides navigational cues
+        events.on("selected_cell_type_changed.Notebook", function() {
+            var previous_cell_num = selected_cell_num;
 
-        //     applyProperties(msg, speech_properties);
-        //     speechSynthesis.speak(msg);
-        // })    
+            cell_ids = get_cell_ids();
+
+            selected_cell = Jupyter.notebook.get_selected_cell();
+            selected_cell_id = Jupyter.notebook.get_selected_cell().cell_id;
+            selected_cell_num = cell_ids.indexOf(selected_cell_id);
+
+            var new_cell_num = selected_cell_num;
+
+            var m = "";
+
+            if (previous_cell_num > new_cell_num) {
+                if (new_cell_num == 0) {
+                    m = "top";
+                } else {
+                    m = "up";
+                }
+            } else {
+                if (new_cell_num == cell_ids.length-1) {
+                    m = "bottom";
+                } else {
+                    m = "down";
+                }
+            }
+            var msg = new SpeechSynthesisUtterance(String(m));
+            msg.rate = 3
+            speechSynthesis.speak(msg);
+        })
+
+        // jQuery delegation to bind this listener to any keypress
+        $(document).on('keypress', '.code_cell.selected', function(e){
+            var charCode = e.charCode;
+            if (mode === 'edit' && e.ctrlKey === false){
+                read_character(charCode);
+            }
+        })
+
+        // jQuery delegation to bind this listener specifically to backspace
+        $(document).on('keydown', '.code_cell.selected', function(e){
+            // Backspace is registered on keydown rather than keypress
+
+            // Switch statement for future expansion
+            switch (e.keyCode){
+
+                case 8:
+                    vco.frequency.value = 150;
+                    vca.gain.value = 0.5;
+
+                    setTimeout(function(){vca.gain.value = 0;}, 100);
+
+                    var msg = new SpeechSynthesisUtterance("back");
+                    msg.rate = 4;
+                    speechSynthesis.speak(msg);
+                    break;
+            }
+        })
+
+    }
+
+    function read_character(asciiNum){
+        var keystroke = String.fromCharCode(asciiNum);
+        var msg;
+
+        // Create message to be read based on the ascii code of the keypress
+        switch (asciiNum){
+
+            // Exclamation
+            case 33:
+                msg = new SpeechSynthesisUtterance("exclamation");
+                break;
+
+            // Colon
+            case 58:
+                msg = new SpeechSynthesisUtterance("colon");
+                break;
+
+            // Semicolon
+            case 59:
+                msg = new SpeechSynthesisUtterance("Semicolon");
+                break;
+
+            // Equals
+            case 61:
+                msg = new SpeechSynthesisUtterance("equals");
+
+            // Single quote
+            case 39:
+                msg = new SpeechSynthesisUtterance("single quote");
+                break;
+
+            // Double quote
+            case 34:
+                msg = new SpeechSynthesisUtterance("double quote");
+                break;
+
+            // Left paren
+            case 40:
+                msg = new SpeechSynthesisUtterance("left paren");
+                break;
+
+            // Right paren
+            case 41:
+                msg = new SpeechSynthesisUtterance("right paren");
+                break;
+
+            // Left bracket
+            case 91:
+                msg = new SpeechSynthesisUtterance("left bracket");
+                break;
+
+            // Right bracket
+            case 93:
+                msg = new SpeechSynthesisUtterance("right bracket");
+                break;
+
+            // Period
+            case 46:
+                msg = new SpeechSynthesisUtterance("dot");
+                break;
+
+            // Backslash
+            case 47:
+                msg = new SpeechSynthesisUtterance("backslash");
+                break;
+
+            default:
+                msg = new SpeechSynthesisUtterance(keystroke);
+        }
+        msg.rate = 4;
+        speechSynthesis.speak(msg);
     }
 
 
-
+    /*
+     * prepare(): Gets each line of the selected cell through the CodeMirror API and 
+     *            passes them to the global message queue to be read. Called by readLine()
+     */
     function prepare(env) {
+
         var speech_properties = {
             lang: 'en-US',
             voice: voices.filter(function(voice) {
@@ -158,7 +268,6 @@ define(function() {
 
         speechSynthesis.speak(intro);
 
-
         // Add each line of the cell to the global message queue
         doc.eachLine(function(line) {
             var l = {
@@ -183,19 +292,10 @@ define(function() {
                 l.text = l.text.replace("#", "")
             }
 
-            if (l.cell_type == 'code') {
-                // Preface comments
-                if ($.inArray("comment", l.styles) != -1) {
-                    var comment = "Comment: ";
-                    l.text = comment.concat(l.text);
-                }
-            }
             var utterance = new SpeechSynthesisUtterance(l.text);
             applyProperties(utterance, l.speech_properties);
             // After the line is finished speaking, call readLine() recursively to continue reading
             utterance.onend = function(event) {
-                // Bad practice here? Seems like spaghetti code chaining these calls
-                // Sometimes this event is not captured. Maybe when the line is too short?
                 readLine()
             }
 
@@ -266,11 +366,37 @@ define(function() {
         }
     }
 
+    var read_mode = {
+        help: 'read current mode (command or edit)',
+        handler: function() {
+            var m = "You are in " + mode + " mode";
+            var msg = new SpeechSynthesisUtterance(m);
+            speechSynthesis.speak(msg);
+        }
+    }
+
+    function get_cell_ids() {
+        // Sets global cell_ids array
+        var ids = Jupyter.notebook.get_cells().map(function(cell) {
+            return cell.cell_id;
+        });
+        return ids;
+    }
+
     var load_extension = function() {
-        $.when($howler, $voices_loaded)
+        $.when($voices_loaded)
             .done(function() {
                 console.log("Scripts loaded.")
+
+                // Startup
+                cell_ids = get_cell_ids();
+
+                selected_cell_id = Jupyter.notebook.get_selected_cell().cell_id;
+                selected_cell_num = cell_ids.indexOf(selected_cell_id);
+
+                // Setup earcons
                 earcon_setup(events);
+
                 // Load actions
                 var _read = Jupyter.keyboard_manager.actions.register(read, 'read', 'accessibility')
                 var _cancel = Jupyter.keyboard_manager.actions.register(cancel, 'cancel', 'accessibility')
@@ -278,16 +404,30 @@ define(function() {
                 var _pause_resume = Jupyter.keyboard_manager.actions.register(pause_resume, 'pause or resume reading', 'accessibility')
                 var _speed_up = Jupyter.keyboard_manager.actions.register(speed_up, 'speed up reading', 'accessibility')
                 var _slow_down = Jupyter.keyboard_manager.actions.register(slow_down, 'slow down reading', 'accessibility')
+                var _read_mode = Jupyter.keyboard_manager.actions.register(read_mode, 'read current mode (command or edit)', 'accessibility')
                 console.log("Reader loaded.")
-                
+
                 // Bind keyboard shortcuts
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-R', _read)
+                Jupyter.keyboard_manager.edit_shortcuts.add_shortcut('Ctrl-Shift-R', _read)
+
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-ESC', _cancel)
+                Jupyter.keyboard_manager.edit_shortcuts.add_shortcut('Ctrl-Shift-ESC', _cancel)
+
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-P', _pause_resume)
+                Jupyter.keyboard_manager.edit_shortcuts.add_shortcut('Ctrl-Shift-P', _pause_resume)
+
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-S', _skip)
+                Jupyter.keyboard_manager.edit_shortcuts.add_shortcut('Ctrl-Shift-S', _skip)
+
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-+', _speed_up)
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift--', _slow_down)
+                Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Ctrl-Shift-M', _read_mode)
+                Jupyter.keyboard_manager.edit_shortcuts.add_shortcut('Ctrl-Shift-M', _read_mode)
                 console.log("Shortcuts bound.")
+
+                var msg = new SpeechSynthesisUtterance("Jupyter Notebook reader successfully loaded!");
+                speechSynthesis.speak(msg);
             });
     }
 

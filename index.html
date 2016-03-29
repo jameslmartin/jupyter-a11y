@@ -45,7 +45,7 @@
                     <div class="text_cell_render border-box-sizing rendered_html">
                         <p>Getting started with <code>reader</code> is pretty simple. Run the following cells of code in any notebook to download and install the extension.</p>
                         <div class="highlight"><pre><span class="kn">import</span> <span class="nn">notebook.nbextensions</span>
-                <span class="n">reader_js</span> <span class="o">=</span> <span class="s">&#39;https://gist.githubusercontent.com/jameslmartin/b52f4778782fa4a61dbd/raw/437c20c4be8f579f226cb3a97c26f4e1adbe76ce/reader.js&#39;</span>
+                <span class="n">reader_js</span> <span class="o">=</span> <span class="s">&#39;https://gist.githubusercontent.com/jameslmartin/b52f4778782fa4a61dbd/raw/589855619e2b3b8ed99fe4d7d5986da3147b2ab6/reader.js&#39;</span>
                 <span class="n">notebook</span><span class="o">.</span><span class="n">nbextensions</span><span class="o">.</span><span class="n">install_nbextension</span><span class="p">(</span><span class="n">reader_js</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
                 </pre></div>
                         <p>After the file is downloaded, load the extension by running this block of code with the JavaScript magic:</p>
@@ -59,7 +59,7 @@
                 <div class="inner_cell">
                     <div class="text_cell_render border-box-sizing rendered_html">
                         <h4 id="Keyboard-shortcuts">Keyboard shortcuts</h3>
-                        <p>Click <code>Help &gt; Keyboard Shortcuts</code> to see your available list of shortcuts. Two of the main functions include:</p>
+                        <p>Click <code>Help &gt; Keyboard Shortcuts</code> to see your available list of shortcuts. Several\ of the main functions include:</p>
                         <ul>
                             <li><code>Shift-R</code> to read the highlighted cell </li>
                             <li><code>Shift-ESC</code> to cancel reading of the cell (useful for code with links and multiple lines) </li>
@@ -308,6 +308,35 @@
             </div>
     </div>
 
+    <!--
+    =========================== End of listing events ===========================
+    -->
+
+    <h3 data-target="#Delegation" data-toggle="collapse" class="post-title">Delegation with jQuery and binding functions to events</h3>
+    Read how the reader extension uses delegation to read keystrokes<br> <br>
+    <div id="Delegation" class="collapse">
+            <div class="cell border-box-sizing text_cell rendered">
+                <div class="inner_cell">
+                    <div class="text_cell_render border-box-sizing rendered_html">
+                        <p>In order to mimic Emacspeak's function of reading characters as they are typed, we use jQuery delegation to bind a listener to current selected cell in the notebook. The code is below:
+                        </p>
+<div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;keypress&#39;</span><span class="p">,</span> <span class="s1">&#39;.code_cell.selected&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
+    <span class="kd">var</span> <span class="nx">charCode</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">charCode</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">mode</span> <span class="o">===</span> <span class="s1">&#39;edit&#39;</span> <span class="o">&amp;&amp;</span> <span class="nx">e</span><span class="p">.</span><span class="nx">ctrlKey</span> <span class="o">===</span> <span class="kc">false</span><span class="p">){</span>
+        <span class="nx">read_character</span><span class="p">(</span><span class="nx">charCode</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+                        <p>This listener allows us to capture keypress events. We filter out keypresses that are a result of keyboard shortcuts and send the character code to another function that creates a message for the WebSpeech API. Special messages for charactes such as braces and slashes are created, but alphanumeric characters can be converted to strings and read directly. As this extension progresses, we will add support for more ASCII characters.</p>
+                        <p>One feature we are looking to implement would be to read an entire word whenever a whitespace is entered after a character.</p>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <!--
+    =========================== End of delegation ===========================
+    -->
 
     <!-- Footer Section -->
     <div class="container">
