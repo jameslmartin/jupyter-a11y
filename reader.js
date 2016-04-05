@@ -15,6 +15,7 @@ define(function() {
     var selected_cell_num = 0; // Number of the selected cell down the page
 
     var mode = "command";
+    var accessibility_mode = false;
 
     // jQuery Deferreds
     var $voices_loaded = $.Deferred();
@@ -81,12 +82,20 @@ define(function() {
             playHum();
         })
 
+        events.on("notebook_saved.Notebook", function() {
+            var m = "Notebook saved.";
+            var msg = new SpeechSynthesisUtterance(m);
+
+            msg.rate = 3;
+            speechSynthesis.speak(msg);
+        })
+
         events.on("edit_mode.Notebook", function() {
             var m = "Edit";
             mode = "edit"; // Set metadata
             var msg = new SpeechSynthesisUtterance(String(m));
 
-            msg.rate = 3
+            msg.rate = 3;
             speechSynthesis.speak(msg);
         })
 
@@ -95,7 +104,7 @@ define(function() {
             mode = "command"; // Set metadata
             var msg = new SpeechSynthesisUtterance(String(m));
 
-            msg.rate = 3
+            msg.rate = 3;
             speechSynthesis.speak(msg);
         })
 
@@ -308,10 +317,6 @@ define(function() {
      *         into the the global message queue sequentially. This allows for the entire reading to be cancelled (with kill) or a line to be
      *         skipped. prepare() adds lines to the global message queue, readLine() takes them off, parses, and adds to the speechSynthesis queue
      */
-
-    // Possible features:
-    // When in edit mode, read single line user is on when command is issued
-    // Read highlighted text
     var read = {
         help: 'read highlighted cell',
         handler: function(env) {
@@ -379,6 +384,21 @@ define(function() {
         }
     }
 
+    var toggle_accessibility_mode = {
+        help: 'toggles CSS of the page for magnification',
+        handler: function() {
+            if(!accessibility_mode){
+                $("#header").css('display', 'none');
+                $("#site").css('display', 'inline');
+                accessibility_mode = true;
+            }else{
+                $("#header").css('display', 'block');
+                $("#site").css('display', 'block');
+                accessibility_mode = false;
+            }
+        }
+    }
+
     function get_cell_ids() {
         // Sets global cell_ids array
         var ids = Jupyter.notebook.get_cells().map(function(cell) {
@@ -402,6 +422,8 @@ define(function() {
                 earcon_setup(events);
 
                 // Load actions
+                var _toggle = Jupyter.keyboard_manager.actions.register(toggle_accessibility_mode, 'toggle', 'accessibility')
+
                 var _read = Jupyter.keyboard_manager.actions.register(read, 'read', 'accessibility')
                 var _cancel = Jupyter.keyboard_manager.actions.register(cancel, 'cancel', 'accessibility')
                 var _skip = Jupyter.keyboard_manager.actions.register(skip, 'skip', 'accessibility')
@@ -412,6 +434,8 @@ define(function() {
                 console.log("Reader loaded.")
 
                 // Bind keyboard shortcuts
+                Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-T', _toggle)
+
                 Jupyter.keyboard_manager.command_shortcuts.add_shortcut('Shift-R', _read)
                 Jupyter.keyboard_manager.edit_shortcuts.add_shortcut('Ctrl-Shift-R', _read)
 
