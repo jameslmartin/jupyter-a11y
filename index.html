@@ -67,10 +67,9 @@
                         <h4 id="Persisting-across-notebooks">Persisting across notebooks</h3>
                         <p>To persist the <code>reader</code> extension, run the following code to modify your Jupyter configuration profile:</p>
                         <div class="highlight"><pre><span class="kn">from</span> <span class="nn">notebook.services.config</span> <span class="kn">import</span> <span class="n">ConfigManager</span>
-                <span class="n">ip</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span>
-                <span class="n">cm</span> <span class="o">=</span> <span class="n">ConfigManager</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">ip</span><span class="p">,</span> <span class="n">profile_dir</span><span class="o">=</span><span class="n">ip</span><span class="o">.</span><span class="n">profile_dir</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
-                <span class="n">cm</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s">&#39;notebook&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;load_extensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;reader&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}})</span>
-                </pre></div>
+<span class="n">ip</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ConfigManager</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">ip</span><span class="p">,</span> <span class="n">profile_dir</span><span class="o">=</span><span class="n">ip</span><span class="o">.</span><span class="n">profile_dir</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
+<span class="n">cm</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s">&#39;notebook&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;load_extensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;reader&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}})</span></pre></div>
                         <p>To learn more, check out <a href="http://mindtrove.info/#nb-extensions">Pete Parente's</a> post about extending Jupyter notebooks. Pete also walks through an example of writing your own nbextension.</p>
                     </div>
                 </div>
