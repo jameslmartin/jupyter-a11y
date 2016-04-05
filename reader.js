@@ -308,6 +308,10 @@ define(function() {
      *         into the the global message queue sequentially. This allows for the entire reading to be cancelled (with kill) or a line to be
      *         skipped. prepare() adds lines to the global message queue, readLine() takes them off, parses, and adds to the speechSynthesis queue
      */
+
+    // Possible features:
+    // When in edit mode, read single line user is on when command is issued
+    // Read highlighted text
     var read = {
         help: 'read highlighted cell',
         handler: function(env) {
