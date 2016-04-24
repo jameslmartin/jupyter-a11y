@@ -36,20 +36,20 @@
     </div>
 
     <div class="container" id="notebook-container">
-        <h3 data-target="#Installation" data-toggle="collapse" class="post-title">Installing the Extension</h3> Learn how to install the a11y reader nbextension
+        <h3 data-target="#Installation">Installing the Extension</h3> Learn how to install the a11y nbreader nbextension
         <br>
         <br>
-        <div id="Installation" class="collapse">
+        <div id="Installation">
             <div class="cell border-box-sizing text_cell rendered">
                 <div class="inner_cell">
                     <div class="text_cell_render border-box-sizing rendered_html">
-                        <p>Getting started with <code>reader</code> is pretty simple. Run the following cells of code in any notebook to download and install the extension.</p>
+                        <p>Getting started with <code>nbreader</code> is pretty simple. Run the following cells of code in any notebook to download and install the extension.</p>
 <div class="highlight"><pre><span class="kn">import</span> <span class="nn">notebook.nbextensions</span>
-<span class="n">reader_js</span> <span class="o">=</span> <span class="s">&#39;https://raw.githubusercontent.com/jameslmartin/jupyter-a11y/master/reader.js&#39;</span>
-<span class="n">notebook</span><span class="o">.</span><span class="n">nbextensions</span><span class="o">.</span><span class="n">install_nbextension</span><span class="p">(</span><span class="n">reader_js</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></pre></div>
+<span class="n">nbreader</span> <span class="o">=</span> <span class="s">&#39;https://raw.githubusercontent.com/jameslmartin/jupyter-a11y/master/reader.js&#39;</span>
+<span class="n">notebook</span><span class="o">.</span><span class="n">nbextensions</span><span class="o">.</span><span class="n">install_nbextension</span><span class="p">(</span><span class="n">nbreader</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></pre></div>
                         <p>After the file is downloaded, load the extension by running this block of code with the JavaScript magic:</p>
                         <div class="highlight"><pre><span class="o">%%</span><span class="n">javascript</span>
-<span class="n">Jupyter</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">load_extensions</span><span class="p">(</span><span class="s">&#39;reader&#39;</span><span class="p">)</span></pre></div>
+<span class="n">Jupyter</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">load_extensions</span><span class="p">(</span><span class="s">&#39;nbreader&#39;</span><span class="p">)</span></pre></div>
                     </div>
                 </div>
             </div>
@@ -63,13 +63,13 @@
                             <li><code>Shift-ESC</code> to cancel reading of the cell (useful for code with links and multiple lines) </li>
                             <li><code>Shift-S</code> to skip the current line of the code cell being read </li>
                         </ul>
-                        <p>If you have any ideas for how to expand and build on the functionality of the reader, get in touch by leaving a comment on the current <a href="https://gist.github.com/jameslmartin/b52f4778782fa4a61dbd">gist page</a>.</p>
+                        <p>If you have any ideas for how to expand and build on the functionality of the nbreader, get in touch by leaving a comment on the current <a href="https://gist.github.com/jameslmartin/b52f4778782fa4a61dbd">gist page</a>.</p>
                         <h4 id="Persisting-across-notebooks">Persisting across notebooks</h3>
-                        <p>To persist the <code>reader</code> extension, run the following code to modify your Jupyter configuration profile:</p>
+                        <p>To persist the <code>nbreader</code> extension, run the following code to modify your Jupyter configuration profile:</p>
                         <div class="highlight"><pre><span class="kn">from</span> <span class="nn">notebook.services.config</span> <span class="kn">import</span> <span class="n">ConfigManager</span>
 <span class="n">ip</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">ConfigManager</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">ip</span><span class="p">,</span> <span class="n">profile_dir</span><span class="o">=</span><span class="n">ip</span><span class="o">.</span><span class="n">profile_dir</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
-<span class="n">cm</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s">&#39;notebook&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;load_extensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;reader&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}})</span></pre></div>
+<span class="n">cm</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s">&#39;notebook&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;load_extensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;nbreader&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}})</span></pre></div>
                         <p>To learn more, check out <a href="http://mindtrove.info/#nb-extensions">Pete Parente's</a> post about extending Jupyter notebooks. Pete also walks through an example of writing your own nbextension.</p>
                     </div>
                 </div>
@@ -171,7 +171,7 @@
     <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Stop&quot;</span><span class="p">)</span>
     <span class="p">};</span>
-    
+
     <span class="nx">events</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;kernel_idle.Kernel&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="nx">stop</span><span class="p">();</span> <span class="c1">// Bind the stop() function to when the idle event fires</span>
     <span class="p">})</span>
@@ -220,12 +220,12 @@
         -->
         <h3 data-target="#Libraries" data-toggle="collapse" class="post-title">Loading external JavaScript libraries for use in nbextensions</h3>
         Learn how to include other JavaScript libraries in your nbextension using jQuery<br> <br>
-        <div id="Libraries" class="collapse">        
+        <div id="Libraries" class="collapse">
         <div class="cell border-box-sizing text_cell rendered">
                 <div class="inner_cell">
                     <div class="text_cell_render border-box-sizing rendered_html">
                         <p>One of the great features of JavaScript programming on the web is the ability to embed other libraries as scripts in your website. Libraries like jQuery, Bootstrap, and D3.js are three examples and add tons of flexibility to websites. Since notebook extensions are not yet maintained with a package manager like <a href="https://www.npmjs.com/">npm</a>, the easiest way to include JavaScript libraries is through <a href="https://jquery.com/">jQuery</a>. Jupyter's front end already makes use of jQuery, so we can use the jQuery <code>$.getScript()</code> function to download whatever we need.</p>
-                        <p><code>reader</code> uses <a href="http://goldfirestudios.com/blog/104/howler.js-Modern-Web-Audio-Javascript-Library">howler.js</a> to create and trigger sounds when kernel events are fired. The code for grabbing the <code>howler.js</code> library is below:</p>
+                        <p><code>nbreader</code> uses <a href="http://goldfirestudios.com/blog/104/howler.js-Modern-Web-Audio-Javascript-Library">howler.js</a> to create and trigger sounds when kernel events are fired. The code for grabbing the <code>howler.js</code> library is below:</p>
                     </div>
                 </div>
             </div>
@@ -307,7 +307,7 @@
     -->
 
     <h3 data-target="#Delegation" data-toggle="collapse" class="post-title">Delegation with jQuery and binding functions to events</h3>
-    Read how the reader extension uses delegation to read keystrokes<br> <br>
+    Read how the nbreader extension uses delegation to read keystrokes<br> <br>
     <div id="Delegation" class="collapse">
             <div class="cell border-box-sizing text_cell rendered">
                 <div class="inner_cell">
@@ -330,6 +330,21 @@
 
     <!--
     =========================== End of delegation ===========================
+
+
+    <h3 data-target="#WebAudio" data-toggle="collapse" class="post-title">Simple sounds using the WebAudio API</h3>
+    Read how the reader extension makes use of the WebAudio API to play simple sounds<br> <br>
+    <div id="WebAudio" class="collapse">
+
+    <div class="cell border-box-sizing text_cell rendered">
+        <div class="inner_cell">
+            <div class="text_cell_render border-box-sizing rendered_html">
+            </div>
+            </div>
+    </div>
+
+
+    =========================== End of WebAudio ===========================
     -->
 
     <!-- Footer Section -->
@@ -348,13 +363,13 @@
             </div>
             <!--
             <div class="col-md-4">
-                <h3>Posts</h3> 
+                <h3>Posts</h3>
                 Installing the extension <br>
                 Creating a new notebook extension <br>
                 Binding kernel events <br>
                 Expanding Web Speech API queue <br>
             </div>
-            --> 
+            -->
         </div>
     </div>
 </body>
