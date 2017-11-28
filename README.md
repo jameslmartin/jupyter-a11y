@@ -7,8 +7,8 @@ Click to view details of this project on [GitHub Pages](http://jameslmartin.gith
 Include the following code in your notebook to download the extension to your `nbextensions` folder:
 ```python
 import notebook.nbextensions
-reader_js = 'https://raw.githubusercontent.com/jameslmartin/jupyter-a11y/master/nbreader.js'
-notebook.nbextensions.install_nbextension(reader_js, user=True)
+nbreader = 'https://raw.githubusercontent.com/jameslmartin/jupyter-a11y/master/nbreader.js'
+notebook.nbextensions.install_nbextension(nbreader, user=True)
 ```
 Then run the following JavaScript cell using magics to load the `reader` extension:
 ```python
