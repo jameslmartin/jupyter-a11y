@@ -30,7 +30,7 @@
                 <a href=".">Home</a>
                 <a href="./about/">About</a>
             </nav>
-            <br> Click a title to expand or collapse a post.
+            <br> Click a title below the Installation instructions to expand or collapse a post.
             <hr>
         </header>
     </div>
@@ -45,7 +45,7 @@
                     <div class="text_cell_render border-box-sizing rendered_html">
                         <p>Getting started with <code>nbreader</code> is pretty simple. Run the following cells of code in any notebook to download and install the extension.</p>
 <div class="highlight"><pre><span class="kn">import</span> <span class="nn">notebook.nbextensions</span>
-<span class="n">nbreader</span> <span class="o">=</span> <span class="s">&#39;https://raw.githubusercontent.com/jameslmartin/jupyter-a11y/master/reader.js&#39;</span>
+<span class="n">nbreader</span> <span class="o">=</span> <span class="s">&#39;https://raw.githubusercontent.com/jameslmartin/jupyter-a11y/master/nbreader.js&#39;</span>
 <span class="n">notebook</span><span class="o">.</span><span class="n">nbextensions</span><span class="o">.</span><span class="n">install_nbextension</span><span class="p">(</span><span class="n">nbreader</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></pre></div>
                         <p>After the file is downloaded, load the extension by running this block of code with the JavaScript magic:</p>
                         <div class="highlight"><pre><span class="o">%%</span><span class="n">javascript</span>
