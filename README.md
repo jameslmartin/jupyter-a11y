@@ -15,10 +15,10 @@ Then run the following JavaScript cell using magics to load the `reader` extensi
 %%javascript
 Jupyter.utils.load_extensions('nbreader')
 ```
-To persist `reader` across notebooks, modify your Jupyter configuration file as follows:
+To persist `nbreader` across notebooks, modify your Jupyter configuration file as follows:
 ```python'
 from notebook.services.config import ConfigManager
 ip = get_ipython()
 cm = ConfigManager(parent=ip, profile_dir=ip.profile_dir.location)
-cm.update('notebook', {"load_extensions": {"reader": True}})
+cm.update('notebook', {"load_extensions": {"nbreader": True}})
 ```
